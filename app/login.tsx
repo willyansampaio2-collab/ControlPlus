@@ -1,23 +1,12 @@
-<<<<<<< HEAD
-import { Text, View } from "react-native";
-
-export default function Login() {
-  return (
-    <View>
-      <Text>Login</Text>
-    </View>
-  );
-}
-=======
+import { router } from "expo-router";
 import { useState } from "react";
 import {
-  View,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
-import { router } from "expo-router";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -70,14 +59,10 @@ export default function LoginScreen() {
         <Text style={styles.textoBotao}>Entrar</Text>
       </TouchableOpacity>
 
-      {mensagem !== "" && (
-        <Text style={styles.mensagem}>{mensagem}</Text>
-      )}
+      {mensagem !== "" && <Text style={styles.mensagem}>{mensagem}</Text>}
 
       <TouchableOpacity onPress={() => router.push("/register")}>
-        <Text style={styles.link}>
-          Não possui conta? Cadastre-se
-        </Text>
+        <Text style={styles.link}>Não possui conta? Cadastre-se</Text>
       </TouchableOpacity>
     </View>
   );
@@ -133,4 +118,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
->>>>>>> feb7192c0cc0443c85984e50e0c9c44e2db75d3a

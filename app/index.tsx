@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-import { Redirect } from "expo-router";
-
-export default function Index() {
-  return <Redirect href={"./home"} />;
-}
-=======
-import { View, Text, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Home() {
   return (
@@ -71,4 +64,3 @@ export default function Home() {
     </View>
   );
 }
->>>>>>> feb7192c0cc0443c85984e50e0c9c44e2db75d3a

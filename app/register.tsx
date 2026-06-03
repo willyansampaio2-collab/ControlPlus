@@ -1,21 +1,10 @@
-<<<<<<< HEAD
-import { Text, View } from "react-native";
-
-export default function Register() {
-  return (
-    <View>
-      <Text>Cadastro</Text>
-    </View>
-  );
-}
-=======
 import { useState } from "react";
 import {
-  View,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
 
 export default function RegisterScreen() {
@@ -92,20 +81,11 @@ export default function RegisterScreen() {
         secureTextEntry
       />
 
-      <TouchableOpacity
-        style={styles.botao}
-        onPress={validarCadastro}
-      >
-        <Text style={styles.textoBotao}>
-          Cadastrar
-        </Text>
+      <TouchableOpacity style={styles.botao} onPress={validarCadastro}>
+        <Text style={styles.textoBotao}>Cadastrar</Text>
       </TouchableOpacity>
 
-      {mensagem !== "" && (
-        <Text style={styles.mensagem}>
-          {mensagem}
-        </Text>
-      )}
+      {mensagem !== "" && <Text style={styles.mensagem}>{mensagem}</Text>}
     </View>
   );
 }
@@ -153,4 +133,3 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
->>>>>>> feb7192c0cc0443c85984e50e0c9c44e2db75d3a
