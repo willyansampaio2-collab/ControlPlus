@@ -1,15 +1,17 @@
 export const Colors = {
-  background: "#050014",
+  background: "#040012",
 
-  card: "#0F0824",
+  backgroundSecondary: "#0B0220",
 
-  primary: "#8B5CF6",
+  card: "#12072C",
 
-  primaryLight: "#A855F7",
+  primary: "#9D4EDD",
+
+  primaryLight: "#C77DFF",
 
   text: "#FFFFFF",
 
-  textSecondary: "#B9B7C3",
+  textSecondary: "#C7C7D1",
 
-  border: "#24184B",
+  glow: "#A855F7",
 };
