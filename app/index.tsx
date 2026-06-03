@@ -1,5 +1,74 @@
+<<<<<<< HEAD
 import { Redirect } from "expo-router";
 
 export default function Index() {
   return <Redirect href={"./home"} />;
 }
+=======
+import { View, Text, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
+
+export default function Home() {
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 24,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 32,
+          fontWeight: "bold",
+          marginBottom: 40,
+        }}
+      >
+        Control+
+      </Text>
+
+      <TouchableOpacity
+        onPress={() => router.push("/login")}
+        style={{
+          backgroundColor: "#2563eb",
+          padding: 14,
+          borderRadius: 8,
+          width: "100%",
+          marginBottom: 12,
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          Entrar
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.push("/register")}
+        style={{
+          backgroundColor: "#16a34a",
+          padding: 14,
+          borderRadius: 8,
+          width: "100%",
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          Criar Conta
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+>>>>>>> feb7192c0cc0443c85984e50e0c9c44e2db75d3a
