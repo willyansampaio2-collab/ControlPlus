@@ -58,6 +58,69 @@ class ProgressoDiarioIntegrationTest {
         return json.readTree(resposta).get("id").asLong();
     }
 
+    @Test void resumoSemHistorico() throws Exception {
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalRegistros").value(0))
+            .andExpect(jsonPath("$.diasCumpridos").value(0))
+            .andExpect(jsonPath("$.sequenciaAtual").value(0))
+            .andExpect(jsonPath("$.melhorSequencia").value(0))
+            .andExpect(jsonPath("$.percentualMeta").value(0))
+            .andExpect(jsonPath("$.metaAtingida").value(false));
+    }
+
+    @Test void resumoContaSequenciasLacunasEArredondaPercentual() throws Exception {
+        for (int dias : new int[]{7, 6, 5, 2, 1, 0}) criar(hoje.minusDays(dias));
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalRegistros").value(6))
+            .andExpect(jsonPath("$.diasCumpridos").value(6))
+            .andExpect(jsonPath("$.sequenciaAtual").value(3))
+            .andExpect(jsonPath("$.melhorSequencia").value(3))
+            .andExpect(jsonPath("$.percentualMeta").value(20.0));
+        usuario.setMetaDias(7);
+        usuarios.saveAndFlush(usuario);
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.percentualMeta").value(85.71));
+    }
+
+    @Test void resumoMantemSequenciaDeOntemSemRegistroHoje() throws Exception {
+        criar(hoje.minusDays(2));
+        criar(hoje.minusDays(1));
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.sequenciaAtual").value(2));
+        long id = criar(hoje);
+        mvc.perform(put(url() + "/" + id).contentType(APPLICATION_JSON).content(corpo(hoje, false)))
+            .andExpect(status().isOk());
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.sequenciaAtual").value(0))
+            .andExpect(jsonPath("$.melhorSequencia").value(2))
+            .andExpect(jsonPath("$.diasCumpridos").value(2))
+            .andExpect(jsonPath("$.totalRegistros").value(3));
+    }
+
+    @Test void resumoZeraSequenciaAntigaELimitaMetaACemPorCento() throws Exception {
+        criar(hoje.minusDays(5));
+        criar(hoje.minusDays(4));
+        usuario.setMetaDias(1);
+        usuarios.saveAndFlush(usuario);
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.sequenciaAtual").value(0))
+            .andExpect(jsonPath("$.melhorSequencia").value(2))
+            .andExpect(jsonPath("$.metaAtingida").value(true))
+            .andExpect(jsonPath("$.percentualMeta").value(100.0));
+    }
+
+    @Test void resumoRespeitaUsuarioERecalculaAposExclusao() throws Exception {
+        long id = criar(hoje);
+        Usuario outro = novoUsuario("resumo@example.com");
+        mvc.perform(get("/usuarios/" + outro.getId() + "/progressos/resumo"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.diasCumpridos").value(0));
+        mvc.perform(delete(url() + "/" + id)).andExpect(status().isNoContent());
+        mvc.perform(get(url() + "/resumo")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.diasCumpridos").value(0));
+        mvc.perform(get("/usuarios/9223372036854775807/progressos/resumo"))
+            .andExpect(status().isNotFound());
+    }
+
     @Test void fluxoCompleto() throws Exception {
         long id = criar(hoje);
         mvc.perform(get(url() + "/" + id)).andExpect(status().isOk())
