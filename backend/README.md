@@ -11,3 +11,9 @@ Back-end em **Java 17, Spring Boot 3, Maven, JPA e PostgreSQL**.
 5. A API estará em `http://localhost:8080`.
 
 Este projeto foi feito para estudar Controller, Service, Repository, Entity, DTO, HTTP e persistência. Não possui autenticação nem segurança de produção; não publique dados pessoais reais.
+
+## Progresso diário
+
+CRUD em `/usuarios/{usuarioId}/progressos`, com data, meta cumprida e observações.
+Consulte [o roteiro de demonstração](DEMONSTRACAO.md) para exemplos PowerShell, regras, endpoints e testes.
+Execute `mvn test` para compilar e testar com banco descartável H2; a execução normal usa PostgreSQL.
