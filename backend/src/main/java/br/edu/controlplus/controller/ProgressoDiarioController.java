@@ -21,6 +21,11 @@ public class ProgressoDiarioController {
         return service.listar(usuarioId);
     }
 
+    @GetMapping("/resumo")
+    public ResumoProgressoResponse resumir(@PathVariable Long usuarioId) {
+        return service.resumir(usuarioId);
+    }
+
     @GetMapping("/{id}")
     public ProgressoDiarioResponse buscar(@PathVariable Long usuarioId, @PathVariable Long id) {
         return service.buscar(usuarioId, id);

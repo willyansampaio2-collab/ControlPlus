@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.TreeSet;
 
 @Service
 @Transactional(readOnly = true)
@@ -28,6 +32,41 @@ public class ProgressoDiarioService {
     public ProgressoDiarioResponse buscar(Long usuarioId, Long id) {
         usuario(usuarioId);
         return converter(encontrar(usuarioId, id));
+    }
+
+    public ResumoProgressoResponse resumir(Long usuarioId) {
+        Usuario usuario = usuario(usuarioId);
+        List<ProgressoDiario> registros = repository.findByUsuarioIdOrderByDataDesc(usuarioId);
+        TreeSet<LocalDate> cumpridos = new TreeSet<>();
+        registros.stream().filter(p -> Boolean.TRUE.equals(p.getMetaCumprida()))
+            .forEach(p -> cumpridos.add(p.getData()));
+
+        int melhor = 0;
+        int consecutivos = 0;
+        LocalDate anterior = null;
+        // Ordenar as datas permite detectar lacunas, mesmo sem registro explícito de falha.
+        for (LocalDate data : cumpridos) {
+            consecutivos = anterior != null && data.equals(anterior.plusDays(1)) ? consecutivos + 1 : 1;
+            melhor = Math.max(melhor, consecutivos);
+            anterior = data;
+        }
+
+        LocalDate hoje = LocalDate.now();
+        boolean registrouHoje = registros.stream().anyMatch(p -> p.getData().equals(hoje));
+        // Sem registro hoje, a sequência de ontem permanece válida até o fim do dia.
+        LocalDate cursor = registrouHoje ? hoje : hoje.minusDays(1);
+        int atual = 0;
+        while (cumpridos.contains(cursor)) {
+            atual++;
+            cursor = cursor.minusDays(1);
+        }
+
+        // A meta representa o total de dias cumpridos, não exige uma sequência contínua.
+        BigDecimal percentual = BigDecimal.valueOf(cumpridos.size()).multiply(BigDecimal.valueOf(100))
+            .divide(BigDecimal.valueOf(usuario.getMetaDias()), 2, RoundingMode.HALF_UP)
+            .min(new BigDecimal("100.00"));
+        return new ResumoProgressoResponse(usuarioId, registros.size(), cumpridos.size(), atual,
+            melhor, usuario.getMetaDias(), percentual, cumpridos.size() >= usuario.getMetaDias());
     }
 
     @Transactional
