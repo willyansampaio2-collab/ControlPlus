@@ -41,3 +41,7 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Compilação Java e arquivos locais de IDE
+backend/target/
+*.class
