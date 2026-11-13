@@ -40,6 +40,7 @@ $registro = Invoke-RestMethod $rota -Method Post -ContentType 'application/json'
 $registro
 Invoke-RestMethod $rota
 Invoke-RestMethod "$rota/$($registro.id)"
+Invoke-RestMethod "$rota/resumo" # Dias cumpridos, sequências e percentual da meta
 
 $dados.metaCumprida = $false
 Invoke-RestMethod "$rota/$($registro.id)" -Method Put -ContentType 'application/json' -Body ($dados | ConvertTo-Json)
@@ -68,6 +69,7 @@ Todas as rotas começam com `/usuarios/{usuarioId}/progressos`.
 |---|---|---|
 | POST | vazio | Cria, retorna 201 e header Location |
 | GET | vazio | Lista do usuário por data decrescente; vazia retorna 200 |
+| GET | `/resumo` | Calcula dias cumpridos, sequências e avanço da meta; retorna 200 |
 | GET | `/{id}` | Busca um registro; retorna 200 |
 | PUT | `/{id}` | Substitui os dados; retorna 200 |
 | DELETE | `/{id}` | Exclui; retorna 204 sem corpo |
@@ -80,10 +82,35 @@ Erros retornam `ProblemDetail` com `status` e `detail`; erros de validação inc
 
 Os IDs na URL organizam os recursos, mas não autenticam o solicitante. A API acadêmica continua sem autenticação.
 
+## Resumo para apresentar as regras de negócio
+
+`GET /usuarios/{usuarioId}/progressos/resumo` retorna:
+
+```json
+{
+  "usuarioId": 1,
+  "totalRegistros": 3,
+  "diasCumpridos": 2,
+  "sequenciaAtual": 0,
+  "melhorSequencia": 2,
+  "metaDias": 30,
+  "percentualMeta": 6.67,
+  "metaAtingida": false
+}
+```
+
+Esse exemplo corresponde a dois dias consecutivos cumpridos antes de uma falha registrada hoje. `totalRegistros` conta também os dias de meta não cumprida. `diasCumpridos` conta apenas `metaCumprida=true`.
+
+Uma sequência exige dias consecutivos: lacuna ou falha a interrompe. Sem registro hoje, a sequência pode continuar a partir de ontem, pois ainda há tempo de registrar o dia atual. Uma falha registrada hoje zera a sequência atual. A melhor sequência considera todo o histórico.
+
+O percentual corresponde a `diasCumpridos / metaDias × 100`, arredondado para duas casas e limitado a 100%. A meta é acumulada, sem exigir dias consecutivos. Usuário sem histórico recebe contadores e percentual zerados; usuário inexistente recebe 404. O resumo é calculado a cada consulta e reflete alterações e exclusões, sem salvar contadores redundantes. As datas seguem o relógio e o fuso do servidor.
+
 ## Testes
 
 `mvn test` compila o backend e executa os testes de integração sem precisar do PostgreSQL. O perfil `test` usa H2 somente no escopo de testes, com tabelas descartáveis. O perfil normal continua usando PostgreSQL.
 
 Cobertura: CRUD, ordenação, duplicidade em POST/PUT, datas inválidas, campos obrigatórios, limite de texto, JSON/ID inválidos, usuário ausente, isolamento entre usuários, unicidade no banco e bloqueio de exclusão de usuário com histórico.
+
+O resumo possui testes para histórico vazio, lacunas, sequência de ontem, falha hoje, sequência antiga, percentual arredondado/limitado, separação por usuário e recálculo após exclusão.
 
 Para conferir a persistência real, execute o roteiro com PostgreSQL, reinicie o backend antes da exclusão e consulte novamente o registro. Não confunda aprovação em H2 com validação específica do PostgreSQL.

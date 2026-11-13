@@ -15,5 +15,6 @@ Este projeto foi feito para estudar Controller, Service, Repository, Entity, DTO
 ## Progresso diário
 
 CRUD em `/usuarios/{usuarioId}/progressos`, com data, meta cumprida e observações.
+Resumo em `GET /usuarios/{usuarioId}/progressos/resumo`: dias cumpridos, sequência atual, melhor sequência e percentual da meta.
 Consulte [o roteiro de demonstração](DEMONSTRACAO.md) para exemplos PowerShell, regras, endpoints e testes.
 Execute `mvn test` para compilar e testar com banco descartável H2; a execução normal usa PostgreSQL.
